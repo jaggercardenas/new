@@ -1,0 +1,42 @@
+name: Build QuickWheel IPA - macOS 26 Intel
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-26-intel
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Compile unsigned iPhone app
+        run: xcodebuild -project QuickWheel.xcodeproj -scheme QuickWheel -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/DerivedData" CODE_SIGNING_ALLOWED=NO build
+      - name: Package IPA
+        run: |
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos/QuickWheel.app" "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -qry "$GITHUB_WORKSPACE/QuickWheel-unsigned.ipa" Payload
+      - name: Verify IPA payload
+        run: |
+          test -s QuickWheel-unsigned.ipa
+          unzip -l QuickWheel-unsigned.ipa | grep "Payload/QuickWheel.app/"
+      - name: Verify embedded LockedCameraCapture extension
+        run: |
+          APP="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos/QuickWheel.app"
+          find "$APP" -name "*CameraExtension.appex" -type d -print | tee "$RUNNER_TEMP/extension-path.txt"
+          test -s "$RUNNER_TEMP/extension-path.txt"
+          EXT=$(head -n 1 "$RUNNER_TEMP/extension-path.txt")
+          /usr/libexec/PlistBuddy -c "Print EXAppExtensionAttributes:EXExtensionPointIdentifier" "$EXT/Info.plist" | grep -x "com.apple.securecapture"
+          unzip -l QuickWheel-unsigned.ipa | grep "QuickWheelCameraExtension.appex"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuickWheel-unsigned-IPA
+          path: QuickWheel-unsigned.ipa
+          retention-days: 14
