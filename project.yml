@@ -1,0 +1,46 @@
+name: QuickWheel
+options:
+  bundleIdPrefix: com.quickwheel
+  deploymentTarget:
+    iOS: '18.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    TARGETED_DEVICE_FAMILY: '1'
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: '1.1'
+    CURRENT_PROJECT_VERSION: '3'
+targets:
+  QuickWheel:
+    type: application
+    platform: iOS
+    sources:
+      - QuickWheel
+      - Shared
+    dependencies:
+      - target: QuickWheelCameraExtension
+        embed: true
+        link: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "QuickWheel uses your camera for its live camera and Camera Control integration."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "QuickWheel saves photos you capture to your Photos library."
+        INFOPLIST_KEY_UIRequiredDeviceCapabilities: arm64
+  QuickWheelCameraExtension:
+    type: extensionkit-extension
+    platform: iOS
+    sources:
+      - QuickWheelCameraExtension/QuickWheelCameraExtension.swift
+      - Shared/CameraEngine.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher.cameraextension
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: QuickWheelCameraExtension/Info.plist
+        APPLICATION_EXTENSION_API_ONLY: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "QuickWheel captures photos while the device is locked."
+        SKIP_INSTALL: YES
