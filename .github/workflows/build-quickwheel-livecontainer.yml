@@ -1,0 +1,51 @@
+name: Build QuickWheel LiveContainer IPA
+on:
+  push:
+    paths:
+      - "LiveContainer/**"
+      - "project-livecontainer.yml"
+      - ".github/workflows/build-quickwheel-livecontainer.yml"
+      - "QuickWheel/**"
+      - "Shared/**"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate extension-free project
+        run: xcodegen generate --spec project-livecontainer.yml
+      - name: Build for physical iPhone
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild -project QuickWheelLC.xcodeproj -scheme QuickWheelLC             -configuration Release -sdk iphoneos -destination 'generic/platform=iOS'             -derivedDataPath "$RUNNER_TEMP/LCBuild"             CODE_SIGNING_ALLOWED=NO build
+      - name: Package unsigned app for LiveContainer import
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/LCBuild/Build/Products/Release-iphoneos/QuickWheelLC.app"
+          test -f "$APP/QuickWheelLC"
+          test ! -d "$APP/Extensions"
+          test ! -d "$APP/PlugIns"
+          /usr/libexec/PlistBuddy -c "Print CFBundleIdentifier" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print CFBundleDisplayName" "$APP/Info.plist"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/Payload/"
+          ( cd "$RUNNER_TEMP" && zip -qry "$GITHUB_WORKSPACE/QuickWheel-LiveContainer-unsigned.ipa" Payload )
+          unzip -t QuickWheel-LiveContainer-unsigned.ipa | tail -n 1
+          unzip -l QuickWheel-LiveContainer-unsigned.ipa | grep 'Payload/QuickWheelLC.app/QuickWheelLC'
+          if unzip -l QuickWheel-LiveContainer-unsigned.ipa | grep -E '\.appex|/Extensions/|/PlugIns/'; then
+            echo "ERROR: LC test build must not contain embedded app extensions"
+            exit 1
+          fi
+          shasum -a 256 QuickWheel-LiveContainer-unsigned.ipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: QuickWheel-LiveContainer-IPA
+          path: QuickWheel-LiveContainer-unsigned.ipa
+          retention-days: 14
