@@ -1,0 +1,40 @@
+name: Build QuickWheel LiveContainer Tweak
+on:
+  push:
+    paths:
+      - "TweakProbe/**"
+      - ".github/workflows/build-tweak-probe.yml"
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile iPhone dynamic library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/QuickWheelProbe
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          xcrun --sdk iphoneos clang \
+            -arch arm64 \
+            -isysroot "$SDK" \
+            -miphoneos-version-min=16.0 \
+            -O2 -fobjc-arc -dynamiclib \
+            -Wl,-install_name,@rpath/QuickWheelProbe.dylib \
+            -framework UIKit -framework Foundation -framework QuartzCore \
+            TweakProbe/QuickWheelProbe.m \
+            -o dist/QuickWheelProbe/QuickWheelProbe.dylib
+          # LiveContainer re-signs imported tweaks with the device certificate.
+          codesign --force --sign - --timestamp=none dist/QuickWheelProbe/QuickWheelProbe.dylib
+          file dist/QuickWheelProbe/QuickWheelProbe.dylib
+          xcrun lipo -info dist/QuickWheelProbe/QuickWheelProbe.dylib
+          xcrun otool -L dist/QuickWheelProbe/QuickWheelProbe.dylib
+          shasum -a 256 dist/QuickWheelProbe/QuickWheelProbe.dylib
+          test -s dist/QuickWheelProbe/QuickWheelProbe.dylib
+          cp TweakProbe/README.txt dist/QuickWheelProbe/README.txt
+      - name: Upload signed-debug binary and instructions
+        uses: actions/upload-artifact@v4
+        with:
+          name: QuickWheelProbe-LiveContainer
+          path: dist/QuickWheelProbe/
