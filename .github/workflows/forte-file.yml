@@ -1,0 +1,19 @@
+name: Download Official Forte
+on:
+  push:
+    paths:
+      - '.github/workflows/forte-file.yml'
+  workflow_dispatch:
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download upstream original and verify SHA256
+        run: |
+          curl --fail --location --retry 4 --retry-delay 2 -o Forte.wflow 'https://github.com/Dr-Sauce/Forte/releases/download/1.0.4/Forte.wflow'
+          echo '2687e8b4ac9ceb37554a10308795970b7678efb5ceaa26fac9208f0668dfc5fb  Forte.wflow' | sha256sum -c -
+      - name: Upload file
+        uses: actions/upload-artifact@v4
+        with:
+          name: Forte-1.0.4-official
+          path: Forte.wflow
