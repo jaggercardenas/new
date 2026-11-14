@@ -1,0 +1,28 @@
+name: Package FPSOverlay Tweak
+on:
+  push:
+    paths: [".github/workflows/fps-tweak.yml"]
+  workflow_dispatch:
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get original published dylib
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p FPSOverlay
+          curl -fL --retry 5 --retry-delay 2 -o FPSOverlay/FPSOverlay.dylib 'https://github.com/fzfalcon/FPSOverlay/releases/download/v2.0.51/FPSOverlay.dylib'
+          echo '6258a53c0429a533433dedfaf12fb27e0b4d0fb32f9186a27a3bd2cedf70cb31  FPSOverlay/FPSOverlay.dylib' | sha256sum -c -
+          cat > FPSOverlay/README.txt <<'EOF'
+          FPSOverlay 2.0.51 - official release binary from fzfalcon/FPSOverlay
+          To install: unzip; LiveContainer > Tweaks > create folder FPS > import FPSOverlay.dylib.
+          Assign folder under a guest app Settings > Tweak Folder, then sign tweak if needed and relaunch.
+          Test on a non-sensitive app. iOS 27 compatibility not independently verified.
+          Source: https://github.com/fzfalcon/FPSOverlay/releases/tag/v2.0.51
+          EOF
+      - name: Package tweak
+        uses: actions/upload-artifact@v4
+        with:
+          name: FPSOverlay-LiveContainer
+          path: FPSOverlay/
