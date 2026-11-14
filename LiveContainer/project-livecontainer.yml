@@ -1,0 +1,31 @@
+name: QuickWheelLC
+options:
+  bundleIdPrefix: com.quickwheel
+  deploymentTarget:
+    iOS: '18.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    TARGETED_DEVICE_FAMILY: '1'
+    MARKETING_VERSION: '1.1.1'
+    CURRENT_PROJECT_VERSION: '4'
+targets:
+  QuickWheelLC:
+    type: application
+    platform: iOS
+    sources:
+      - path: LiveContainer/QuickWheelLiveContainerApp.swift
+      - path: QuickWheel/WheelView.swift
+      - path: QuickWheel/CameraLabView.swift
+      - path: QuickWheel/CameraDiagnosticsView.swift
+      - path: Shared/CameraEngine.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher.livecontainer
+        INFOPLIST_KEY_CFBundleDisplayName: "QuickWheel LC"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSCameraUsageDescription: "Camera lab is optional. This test build works without the camera."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "QuickWheel saves photos you capture to Photos when requested."
+        INFOPLIST_KEY_UIRequiredDeviceCapabilities: arm64
