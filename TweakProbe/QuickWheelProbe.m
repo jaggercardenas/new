@@ -157,7 +157,7 @@
     frame.origin.x = MAX(3, MIN(superview.bounds.size.width - frame.size.width - 3, frame.origin.x + translation.x));
     frame.origin.y = MAX(3, MIN(superview.bounds.size.height - frame.size.height - 3, frame.origin.y + translation.y));
     self.panel.frame = frame;
-    [gesture setTranslation:CGPointZero inView:superview];
+    [gesture setTranslation:CGPointMake(0, 0) inView:superview];
 }
 
 @end
