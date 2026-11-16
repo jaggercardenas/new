@@ -8,8 +8,8 @@ settings:
     SWIFT_VERSION: '5.0'
     TARGETED_DEVICE_FAMILY: '1'
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: '1.1'
-    CURRENT_PROJECT_VERSION: '3'
+    MARKETING_VERSION: '1.2.1'
+    CURRENT_PROJECT_VERSION: '6'
 targets:
   QuickWheel:
     type: application
@@ -36,6 +36,7 @@ targets:
     sources:
       - QuickWheelCameraExtension/QuickWheelCameraExtension.swift
       - Shared/CameraEngine.swift
+      - Shared/QuickWheelCaptureIntent.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher.cameraextension
