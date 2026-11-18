@@ -8,8 +8,8 @@ settings:
     SWIFT_VERSION: '5.0'
     TARGETED_DEVICE_FAMILY: '1'
     CODE_SIGN_STYLE: Automatic
-    MARKETING_VERSION: '1.1'
-    CURRENT_PROJECT_VERSION: '3'
+    MARKETING_VERSION: '1.3.0'
+    CURRENT_PROJECT_VERSION: '8'
 targets:
   QuickWheel:
     type: application
@@ -19,6 +19,9 @@ targets:
       - Shared
     dependencies:
       - target: QuickWheelCameraExtension
+        embed: true
+        link: false
+      - target: QuickWheelControlWidgets
         embed: true
         link: false
     settings:
@@ -36,6 +39,7 @@ targets:
     sources:
       - QuickWheelCameraExtension/QuickWheelCameraExtension.swift
       - Shared/CameraEngine.swift
+      - Shared/QuickWheelCaptureIntent.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher.cameraextension
@@ -43,4 +47,17 @@ targets:
         INFOPLIST_FILE: QuickWheelCameraExtension/Info.plist
         APPLICATION_EXTENSION_API_ONLY: YES
         INFOPLIST_KEY_NSCameraUsageDescription: "QuickWheel captures photos while the device is locked."
+        SKIP_INSTALL: YES
+  QuickWheelControlWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - QuickWheelControlWidgets/QuickWheelCameraControl.swift
+      - Shared/QuickWheelCaptureIntent.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.quickwheel.launcher.controlwidgets
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: QuickWheelControlWidgets/Info.plist
+        APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
